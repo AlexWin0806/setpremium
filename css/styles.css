@@ -1,0 +1,661 @@
+/* ---- Theme tokens ---------------------------------------------------------
+   Every colour the UI uses is a token here, so future themes only need to
+   redefine this block under their own [data-theme]. */
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #1f1f23;
+  --surface: #29292e;
+  --surface-hover: #313137;
+  --surface-strong: #3a3a41;
+  --border: rgb(255 255 255 / 0.07);
+  --text: #f4f4f5;
+  --muted: #8b8b94;
+  --accent: #f4f4f5;
+  --on-accent: #1f1f23;
+  --select: #ffc83d;
+  --good: #34c759;
+  --bad: #ff453a;
+
+  /* Cards: see-through with a thin outline; the classic red, green, purple brightened for the dark background. */
+  --card-bg: transparent;
+  --card-border: rgb(255 255 255 / 0.22);
+  --card-shadow: none;
+  --set-color-0: #f5424b;
+  --set-color-1: #1fc46a;
+  --set-color-2: #b05ce6;
+
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-display: var(--font-ui); /* title font TBD */
+
+  --tile-radius: 28px;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
+/* ---- Base ---------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  touch-action: manipulation;
+}
+
+:focus-visible {
+  outline: 2px solid var(--select);
+  outline-offset: 3px;
+}
+
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.view {
+  animation: view-in 0.25s var(--ease-out);
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---- Shared controls ----------------------------------------------------- */
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background-color 0.15s,
+    transform 0.15s var(--ease-out);
+}
+
+.icon-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-btn:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.icon-btn:active {
+  transform: scale(0.92);
+}
+
+.icon-btn-spacer {
+  width: 44px;
+}
+
+.btn {
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface-strong);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.15s var(--ease-out),
+    filter 0.15s;
+}
+
+.btn:hover {
+  filter: brightness(1.12);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* ---- Home ---------------------------------------------------------------- */
+
+.home {
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+}
+
+.home-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: clamp(48px, 9vh, 96px) 16px clamp(24px, 5vh, 48px);
+}
+
+.logo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(64px, 14vw, 128px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  margin-right: -0.14em; /* keep the tracked word optically centred */
+  animation: logo-in 0.6s var(--ease-out);
+}
+
+@keyframes logo-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.4em;
+  }
+}
+
+.settings-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.settings-btn:hover svg {
+  transform: rotate(45deg);
+}
+
+.settings-btn svg {
+  transition: transform 0.4s var(--ease-out);
+}
+
+.modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(156px, 40vw), 1fr));
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.mode-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  aspect-ratio: 1;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--tile-radius);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: center;
+  animation: tile-in 0.5s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 70ms + 150ms);
+  transition:
+    transform 0.25s var(--ease-spring),
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.25s;
+}
+
+@keyframes tile-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+}
+
+.mode-tile:not([aria-disabled]):hover {
+  transform: translateY(-4px);
+  background: var(--surface-hover);
+  border-color: rgb(255 255 255 / 0.12);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 0.35);
+}
+
+.mode-tile:not([aria-disabled]):active {
+  transform: scale(0.96);
+  transition-duration: 0.1s;
+}
+
+.mode-tile[aria-disabled] {
+  cursor: default;
+}
+
+.mode-tile[aria-disabled] > :not(.badge) {
+  opacity: 0.4;
+}
+
+.mode-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 8px;
+  color: var(--text);
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.mode-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.mode-icon .icon-classic {
+  width: 56px;
+  height: 56px;
+  overflow: visible;
+}
+
+.mode-tile:not([aria-disabled]):hover .mode-icon {
+  transform: scale(1.08);
+}
+
+/* The three shapes hop one after another on hover. */
+.mode-tile:hover .icon-classic path {
+  animation: hop 0.5s var(--ease-out);
+}
+
+.mode-tile:hover .icon-classic g:nth-child(2) path {
+  animation-delay: 0.08s;
+}
+
+.mode-tile:hover .icon-classic g:nth-child(3) path {
+  animation-delay: 0.16s;
+}
+
+@keyframes hop {
+  40% {
+    transform: translateX(-14px);
+  }
+}
+
+.mode-name {
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.mode-tagline {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---- Settings / plain pages ---------------------------------------------- */
+
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+}
+
+.page-header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  padding: 12px;
+}
+
+.page-header h1 {
+  margin: 0;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.page-body {
+  padding: 8px 16px 48px;
+}
+
+.group {
+  margin-bottom: 28px;
+}
+
+.group-title {
+  margin: 0 0 8px 16px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.group-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 0 16px;
+}
+
+.row + .row {
+  border-top: 1px solid var(--border);
+}
+
+.row-icon svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+  color: var(--muted);
+}
+
+.row-label {
+  flex: 1;
+}
+
+.row-detail {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.page-note {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---- Game ---------------------------------------------------------------- */
+
+.game {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+}
+
+.game-bar {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  padding: 8px 12px;
+}
+
+.game-stats {
+  display: flex;
+  justify-content: center;
+  gap: clamp(20px, 6vw, 48px);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 48px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.board-wrap {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  margin: 4px clamp(12px, 3vw, 40px) clamp(16px, 3vh, 32px);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), var(--card-w));
+  grid-auto-rows: var(--card-h);
+  gap: var(--gap);
+}
+
+.card {
+  display: block;
+  width: var(--card-w);
+  height: var(--card-h);
+  padding: 0;
+  border: 1px solid var(--card-border);
+  border-radius: calc(min(var(--card-w), var(--card-h)) * 0.09);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  cursor: pointer;
+  transition:
+    transform 0.18s var(--ease-out),
+    box-shadow 0.18s;
+}
+
+.card svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.card path {
+  stroke-width: 5;
+  stroke-linejoin: round;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.card.selected {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 0 0 3px var(--select),
+    0 10px 24px rgb(0 0 0 / 0.4);
+}
+
+.card.deal {
+  animation: deal 0.4s var(--ease-out) backwards;
+}
+
+@keyframes deal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.9);
+  }
+}
+
+.card.found {
+  box-shadow:
+    0 0 0 3px var(--good),
+    0 10px 24px rgb(0 0 0 / 0.4);
+  animation: found 0.28s ease-in forwards;
+}
+
+@keyframes found {
+  to {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+}
+
+.card.wrong {
+  box-shadow:
+    0 0 0 3px var(--bad),
+    0 10px 24px rgb(0 0 0 / 0.4);
+  animation: shake 0.36s ease-in-out;
+}
+
+@keyframes shake {
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+/* ---- End-of-game panel --------------------------------------------------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: view-in 0.3s var(--ease-out);
+}
+
+.panel {
+  width: min(360px, 100%);
+  padding: 28px 24px 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--tile-radius);
+  background: var(--surface);
+  text-align: center;
+  animation: panel-in 0.4s var(--ease-spring);
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+}
+
+.panel-kicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.panel-title {
+  margin: 6px 0 4px;
+  font-size: 48px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-best,
+.panel-muted {
+  margin: 0;
+  font-size: 14px;
+}
+
+.panel-best {
+  color: var(--select);
+  font-weight: 600;
+}
+
+.panel-muted {
+  color: var(--muted);
+}
+
+.results {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 24px 0;
+}
+
+.results dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.results dd {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.panel-actions .btn {
+  flex: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

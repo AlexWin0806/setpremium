@@ -1,0 +1,13 @@
+{
+  "name": "setpremium",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SET card game for the web, installable on iPhone.",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "start:lan": "node scripts/serve.mjs --host 0.0.0.0",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "icons": "node scripts/make-icons.mjs"
+  }
+}
