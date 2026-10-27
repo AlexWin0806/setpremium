@@ -30,7 +30,8 @@ HTTPS, because that's when the service worker is allowed to run.
 | `js/cards.js`, `js/shapes.js` | Card SVG drawing |
 | `js/game-view.js` | Game screen: board layout, input, timer, end panel |
 | `js/home-view.js`, `js/modes.js` | Home screen and the game-mode list |
-| `js/settings-view.js`, `js/settings.js` | Settings screen and stored preferences |
+| `js/settings-panel.js`, `js/settings.js` | Slide-out settings drawer, theme list and stored preferences |
 | `js/stats.js` | Finished-game history (in `localStorage`) |
-| `css/styles.css` | All styles; theme colours are tokens at the top |
+| `css/styles.css` | All styles. Each theme is a block of colour tokens near the top (`[data-theme='classic-dark']`, `[data-theme='classic-light']`) |
+| `fonts/` | Notable (title font) by Eli Block, Hana Tanimura and Noémie Le Coz, SIL OFL 1.1 |
 | `sw.js` | Offline cache. Add new files to `PRECACHE` and bump `VERSION` |

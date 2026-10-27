@@ -1,6 +1,6 @@
 // Network-first service worker: always serve the latest files when online and
 // fall back to the cache offline. Bump VERSION when the precache list changes.
-const VERSION = 'v1';
+const VERSION = 'v3';
 const CACHE = `set-${VERSION}`;
 
 const PRECACHE = [
@@ -11,7 +11,7 @@ const PRECACHE = [
   'js/main.js',
   'js/router.js',
   'js/home-view.js',
-  'js/settings-view.js',
+  'js/settings-panel.js',
   'js/game-view.js',
   'js/modes.js',
   'js/classic-game.js',
@@ -22,6 +22,7 @@ const PRECACHE = [
   'js/settings.js',
   'js/stats.js',
   'js/storage.js',
+  'fonts/notable-latin.woff2',
   'icons/icon.svg',
   'icons/apple-touch-icon.png',
 ];

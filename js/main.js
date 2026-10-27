@@ -3,7 +3,6 @@ import { mountHome } from './home-view.js';
 import { findMode } from './modes.js';
 import { startRouter } from './router.js';
 import { applySettings } from './settings.js';
-import { mountSettings } from './settings-view.js';
 
 applySettings();
 installCardDefs();
@@ -11,7 +10,6 @@ installCardDefs();
 startRouter(
   [
     [/^\/$/, () => mountHome],
-    [/^\/settings$/, () => mountSettings],
     [/^\/play\/([\w-]+)$/, (id) => findMode(id)?.view],
   ],
   document.getElementById('app'),
