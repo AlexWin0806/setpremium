@@ -1,7 +1,7 @@
-import { CARD_DESIGNS, designIcon } from './cards.js';
+import { CARD_DESIGNS, designIcon, getDesign } from './cards.js';
 import { formatTime } from './format.js';
 import { ICONS } from './icons.js';
-import { THEMES, getSettings, updateSettings } from './settings.js';
+import { CARD_TEXTURES, THEMES, getSettings, updateSettings } from './settings.js';
 import { bestTime, getStats } from './stats.js';
 
 // Settings drawer that slides in from the right over `host`. The page behind
@@ -52,6 +52,23 @@ export function createSettingsPanel(host, trigger) {
             )}
           </ul>
         </section>
+        <section class="group" style="--i:2">
+          <h3 class="group-title">Card texture</h3>
+          <ul class="group-list">
+            ${picker(
+              'cardTexture',
+              'texture',
+              'Texture',
+              CARD_TEXTURES.map((texture) => ({
+                id: texture.id,
+                name: texture.name,
+                preview: `<span class="choice-preview">
+                  <span class="texture-swatch" data-card-texture="${texture.id}"></span>
+                </span>`,
+              })),
+            )}
+          </ul>
+        </section>
         <p class="drawer-note">Settings and statistics are saved on this device.</p>
       </div>
     </aside>
@@ -82,6 +99,9 @@ export function createSettingsPanel(host, trigger) {
 
   function renderChoices() {
     const settings = getSettings();
+    // Texture swatches show a card in the current design.
+    const icon = designIcon(getDesign(settings.cardDesign));
+    for (const swatch of drawer.querySelectorAll('.texture-swatch')) swatch.innerHTML = icon;
     for (const choice of choices) {
       const on = settings[choice.dataset.setting] === choice.dataset.value;
       choice.setAttribute('aria-checked', String(on));

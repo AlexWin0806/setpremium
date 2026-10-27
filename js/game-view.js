@@ -8,7 +8,7 @@ import { bestTime, recordGame, recordSet } from './stats.js';
 
 const MAX_CARD_LONG_SIDE = 340; // px, so cards don't get silly on big screens
 const DEAL_STAGGER_MS = 45;
-const FOUND_MS = 280;
+const FOUND_MS = 380; // matches the `found` animation in styles.css
 const WRONG_MS = 380;
 
 // `mode` is an entry from modes.js; `mode.targetSets` ends the game early.
@@ -167,7 +167,7 @@ export function mountGame(root, mode) {
 
     if (ok) {
       recordSet();
-      els.forEach((el) => el.classList.add('found'));
+      els.forEach((el) => start(el, 'found'));
       announcer.textContent = `Set! ${game.setsFound} found.`;
       later(FOUND_MS, () => {
         selected = [];
@@ -176,7 +176,7 @@ export function mountGame(root, mode) {
         if (game.over) finish();
       });
     } else {
-      els.forEach((el) => el.classList.add('wrong'));
+      els.forEach((el) => start(el, 'wrong'));
       announcer.textContent = 'Not a set.';
       later(WRONG_MS, () => {
         els.forEach((el) => el.classList.remove('wrong'));
@@ -235,6 +235,14 @@ export function mountGame(root, mode) {
     renderBoard();
   }
 
+  // Starts a card animation right away, dropping any leftover deal stagger so
+  // all three cards animate in sync.
+  function start(el, name) {
+    el.classList.remove('deal');
+    el.style.animationDelay = '';
+    el.classList.add(name);
+  }
+
   function later(ms, fn) {
     setTimeout(() => disposed || fn(), ms);
   }
@@ -252,7 +260,9 @@ export function mountGame(root, mode) {
     if (el) toggle(el);
   });
   board.addEventListener('animationend', (event) => {
-    if (event.animationName === 'deal') event.target.classList.remove('deal');
+    if (event.animationName !== 'deal') return;
+    event.target.classList.remove('deal');
+    event.target.style.animationDelay = '';
   });
 
   view.addEventListener('click', (event) => {

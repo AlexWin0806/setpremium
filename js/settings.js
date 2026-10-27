@@ -6,15 +6,27 @@ import { load, save } from './storage.js';
 export const THEMES = [
   { id: 'classic-dark', name: 'Classic Dark' },
   { id: 'classic-light', name: 'Classic Light' },
+  { id: 'beach', name: 'Beach' },
+];
+
+// The background of each card. Styles live in css/styles.css under
+// [data-card-texture='<id>'], with colours from the active theme.
+export const CARD_TEXTURES = [
+  { id: 'classic', name: 'Classic' },
+  { id: 'glass', name: 'Glass' },
+  { id: 'translucent', name: 'Translucent' },
+  { id: 'wood', name: 'Wood' },
+  { id: 'marble', name: 'Marble' },
 ];
 
 // Settings are saved in this browser (localStorage), so each device — desktop
 // browser, phone browser, home-screen app — remembers its own last choices.
-const DEFAULTS = { theme: 'classic-dark', cardDesign: 'classic' };
+const DEFAULTS = { theme: 'classic-dark', cardDesign: 'classic', cardTexture: 'classic' };
 
 let settings = { ...DEFAULTS, ...load('settings', {}) };
 if (!THEMES.some((t) => t.id === settings.theme)) settings.theme = DEFAULTS.theme;
 if (!CARD_DESIGNS.some((d) => d.id === settings.cardDesign)) settings.cardDesign = DEFAULTS.cardDesign;
+if (!CARD_TEXTURES.some((t) => t.id === settings.cardTexture)) settings.cardTexture = DEFAULTS.cardTexture;
 
 export function getSettings() {
   return settings;
@@ -37,6 +49,7 @@ export function applySettings({ animate = false } = {}) {
     setTimeout(() => root.classList.remove('theme-switching'), 400);
   }
   root.dataset.theme = settings.theme;
+  root.dataset.cardTexture = settings.cardTexture;
   // Browser / status-bar colour follows the theme background.
   const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);

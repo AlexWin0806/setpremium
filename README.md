@@ -23,7 +23,7 @@ HTTPS, because that's when the service worker is allowed to run.
 
 ## Saved data
 
-Settings (theme, card design) and statistics are kept in the browser's
+Settings (theme, card design, card texture) and statistics are kept in the browser's
 `localStorage`, so each browser remembers its own. On iPhone, the home-screen
 app has its own storage, separate from Safari.
 
@@ -38,6 +38,7 @@ app has its own storage, separate from Safari.
 | `js/home-view.js`, `js/modes.js` | Home screen and the game-mode list (Classic, Fast Five, …) |
 | `js/settings-panel.js`, `js/settings.js` | Slide-out settings drawer, theme list and stored preferences |
 | `js/stats.js` | Lifetime statistics and finished-game history |
-| `css/styles.css` | All styles. Each theme is a block of colour tokens near the top (`[data-theme='classic-dark']`, `[data-theme='classic-light']`) |
-| `fonts/` | Notable (title font) by Eli Block, Hana Tanimura and Noémie Le Coz, SIL OFL 1.1 |
+| `css/styles.css` | All styles. Themes (`[data-theme=…]`) and card textures (`[data-card-texture=…]`) are blocks of tokens near the top |
+| `fonts/` | Title fonts, SIL OFL 1.1: Notable (Eli Block, Hana Tanimura, Noémie Le Coz) and Pacifico (Beach theme) |
+| `js/beach.js` | Beach theme home-screen art: shoreline, waves and beach things |
 | `sw.js` | Offline cache. Add new files to `PRECACHE` and bump `VERSION` |

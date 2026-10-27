@@ -1,3 +1,4 @@
+import { beachScene } from './beach.js';
 import { designIcon, getDesign } from './cards.js';
 import { ICONS } from './icons.js';
 import { MODES } from './modes.js';
@@ -12,6 +13,7 @@ export function mountHome(root) {
   const view = document.createElement('div');
   view.className = 'view home';
   view.innerHTML = `
+    ${beachScene()}
     <button class="icon-btn settings-btn" type="button" aria-label="Settings">${ICONS.settings}</button>
     <div class="home-content">
       <header class="home-header">

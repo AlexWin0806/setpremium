@@ -19,5 +19,6 @@ export const ICONS = {
   layers: svg('<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>'),
   trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM17 6h3v1a3 3 0 0 1-3 3M7 6H4v1a3 3 0 0 0 3 3"/>'),
   palette: svg('<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/>'),
+  texture: svg('<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8.5c2-1 3 1 5 0s3-1 3-1M8 12.5c2-1 3 1 5 0s3-1 3-1M8 16.5c2-1 3 1 5 0s3-1 3-1"/>'),
   cards: svg('<rect x="7" y="3" width="10" height="16" rx="2"/><path d="M4 7v11a3 3 0 0 0 3 3h7"/>'),
 };

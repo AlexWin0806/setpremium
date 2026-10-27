@@ -1,7 +1,8 @@
 /* ---- Fonts -------------------------------------------------------------- */
 
-/* Notable by Eli Block, Hana Tanimura and Noémie Le Coz (SIL OFL 1.1, see
-   fonts/OFL.txt). Bundled so the title works offline. */
+/* Title fonts, bundled so they work offline (SIL OFL 1.1, see fonts/):
+   Notable by Eli Block, Hana Tanimura and Noémie Le Coz; Pacifico by Vernon
+   Adams, Jacques Le Bailly, Botjo Nikoltchev and Ani Petrova. */
 @font-face {
   font-family: 'Notable';
   font-style: normal;
@@ -10,11 +11,21 @@
   src: url('../fonts/notable-latin.woff2') format('woff2');
 }
 
+@font-face {
+  font-family: 'Pacifico';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/pacifico-latin.woff2') format('woff2');
+}
+
 /* ---- Shared tokens ------------------------------------------------------- */
 
 :root {
   --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --font-display: 'Notable', var(--font-ui);
+  --title-tracking: 0.08em;
+  --title-color: var(--text);
 
   --tile-radius: 28px;
   --tile-depth: 8px;
@@ -37,6 +48,8 @@
 [data-theme='classic-dark'] {
   color-scheme: dark;
   --bg: #1f1f23;
+  --bg-art: none; /* layered over --bg, e.g. a sand texture */
+  --preview-art: none; /* layered over --bg in the settings preview */
   --surface: #29292e;
   --surface-hover: #313137;
   --surface-strong: #3a3a41;
@@ -53,11 +66,23 @@
   --raised-shadow: 0 10px 24px rgb(0 0 0 / 0.4);
   --drawer-shadow: -24px 0 48px rgb(0 0 0 / 0.3);
 
-  /* Cards: see-through with a thin outline; the classic red, green, purple
-     brightened for the dark background. */
-  --card-bg: transparent;
-  --card-border: rgb(255 255 255 / 0.22);
-  --card-shadow: none;
+  /* Cards: the classic red, green, purple brightened for the dark
+     background, plus this theme's colours for each card texture. */
+  --card-outline: rgb(255 255 255 / 0.22);
+  --glass-tint: rgb(255 255 255 / 0.06);
+  --glass-sheen: rgb(255 255 255 / 0.14);
+  --glass-edge: rgb(255 255 255 / 0.3);
+  --translucent-fill: rgb(255 255 255 / 0.09);
+  --wood-light: #5e3f2a;
+  --wood-dark: #4a3020;
+  --wood-edge: #2c1b10;
+  --wood-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='w' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.12' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.17 0 0 0 0 0.1 0 0 0 0 0.05 2.2 0 0 0 -0.92'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23w)'/%3E%3C/svg%3E");
+  --marble-light: #34343a;
+  --marble-dark: #26262b;
+  --marble-edge: rgb(255 255 255 / 0.12);
+  --engrave-shadow: rgb(0 0 0 / 0.6);
+  --engrave-highlight: rgb(255 255 255 / 0.25);
+  --marble-veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='m' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.005 0.011' numOctaves='5' seed='8'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.6 0 0 0 0 0.66 -3.4 0 0 0 0.5'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23m)'/%3E%3C/svg%3E");
   --set-color-0: #f5424b;
   --set-color-1: #1fc46a;
   --set-color-2: #b05ce6;
@@ -72,9 +97,13 @@
   --tile-ambient: rgb(0 0 0 / 0.3);
 }
 
-[data-theme='classic-light'] {
+/* Beach builds on Classic Light, overriding below. */
+[data-theme='classic-light'],
+[data-theme='beach'] {
   color-scheme: light;
   --bg: #ececf0;
+  --bg-art: none;
+  --preview-art: none;
   --surface: #f7f7f9;
   --surface-hover: #ffffff;
   --surface-strong: #dedee4;
@@ -92,9 +121,21 @@
   --drawer-shadow: -24px 0 48px rgb(0 0 0 / 0.12);
 
   /* The original card colours, which read well on a light background. */
-  --card-bg: transparent;
-  --card-border: rgb(0 0 0 / 0.2);
-  --card-shadow: none;
+  --card-outline: rgb(0 0 0 / 0.2);
+  --glass-tint: rgb(255 255 255 / 0.35);
+  --glass-sheen: rgb(255 255 255 / 0.85);
+  --glass-edge: rgb(255 255 255 / 0.95);
+  --translucent-fill: rgb(255 255 255 / 0.55);
+  --wood-light: #e8cfa6;
+  --wood-dark: #d9b98a;
+  --wood-edge: #b8915f;
+  --wood-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='w' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.12' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.62 0 0 0 0 0.42 0 0 0 0 0.22 2.2 0 0 0 -0.92'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23w)'/%3E%3C/svg%3E");
+  --marble-light: #fbfaf8;
+  --marble-dark: #ebe9e6;
+  --marble-edge: rgb(0 0 0 / 0.12);
+  --engrave-shadow: rgb(0 0 0 / 0.35);
+  --engrave-highlight: rgb(255 255 255 / 0.85);
+  --marble-veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='m' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.005 0.011' numOctaves='5' seed='8'/%3E%3CfeColorMatrix values='0 0 0 0 0.52 0 0 0 0 0.52 0 0 0 0 0.58 -3.4 0 0 0 0.5'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23m)'/%3E%3C/svg%3E");
   --set-color-0: #e3242b;
   --set-color-1: #00a651;
   --set-color-2: #6a2c91;
@@ -106,6 +147,95 @@
   --tile-edge: inset 0 1px 0 rgb(255 255 255 / 0.4);
   --title-shadow: #a6a6b0;
   --tile-ambient: rgb(0 0 0 / 0.12);
+}
+
+[data-theme='beach'] {
+  --bg: #efd9a7;
+  --bg-art: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='s' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.4 0 0 0 0 0.22 3.2 0 0 0 -1.75'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23s)'/%3E%3C/svg%3E");
+  --preview-art:
+    linear-gradient(to bottom, #2aa6c4 0 30%, #c3f0ea 30% 34%, transparent 34%), var(--bg-art);
+  --surface: #fff8ea;
+  --surface-hover: #fffdf6;
+  --surface-strong: #f1e2c3;
+  --border: rgb(120 84 30 / 0.14);
+  --text: #26394d;
+  --muted: #7d6a50;
+  --accent: #1688a0;
+  --on-accent: #ffffff;
+  --select: #ff7d3b;
+  --scrim: rgb(60 40 10 / 0.12);
+  --overlay: rgb(60 40 10 / 0.25);
+  --card-outline: rgb(110 76 30 / 0.3);
+  --translucent-fill: rgb(255 255 255 / 0.45);
+
+  --font-display: 'Pacifico', cursive;
+  --title-tracking: 0.02em;
+  --title-color: #ff7f50;
+  --title-shadow: #d95f37;
+
+  --tile-face: linear-gradient(180deg, #fffaf0, #fbf1dc);
+  --tile-face-hover: linear-gradient(180deg, #fffdf7, #fdf5e4);
+  --tile-side: #d2ad76;
+  --tile-side-outline: rgb(110 76 30 / 0.08);
+  --tile-edge: inset 0 1px 0 rgb(255 255 255 / 0.6);
+  --tile-ambient: rgb(110 76 30 / 0.2);
+}
+
+/* ---- Card textures --------------------------------------------------------
+   The look of each card's background, set by [data-card-texture] (see
+   js/settings.js). Colours come from the active theme above. Like themes, a
+   texture can be applied to one element, which is how the settings previews
+   render. */
+
+:root,
+[data-card-texture='classic'] {
+  --card-bg: transparent;
+  --card-border: var(--card-outline);
+  --card-shadow: none;
+}
+
+[data-card-texture='glass'] {
+  --card-bg:
+    linear-gradient(125deg, var(--glass-sheen) 0%, transparent 38%, transparent 70%, var(--glass-tint) 100%),
+    linear-gradient(var(--glass-tint), var(--glass-tint));
+  --card-border: var(--glass-edge);
+  --card-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    0 8px 22px rgb(0 0 0 / 0.22);
+}
+
+[data-card-texture='translucent'] {
+  --card-bg: var(--translucent-fill);
+  --card-border: transparent;
+  --card-shadow: none;
+}
+
+[data-card-texture='wood'] {
+  --card-bg: var(--wood-grain), linear-gradient(100deg, var(--wood-dark), var(--wood-light) 45%, var(--wood-dark));
+  --card-border: var(--wood-edge);
+  --card-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 4px 12px rgb(0 0 0 / 0.25);
+}
+
+[data-card-texture='marble'] {
+  --card-bg: var(--marble-veins), radial-gradient(circle at 30% 20%, var(--marble-light), var(--marble-dark));
+  --card-border: var(--marble-edge);
+  --card-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.15),
+    0 4px 12px rgb(0 0 0 / 0.2);
+}
+
+/* On wood and marble the symbols look engraved into the card (filters are in
+   js/cards.js). */
+[data-card-texture='wood'] .card .symbols,
+[data-card-texture='marble'] .card .symbols {
+  filter: url(#engrave);
+}
+
+.texture-swatch[data-card-texture='wood'] .design-icon > g,
+.texture-swatch[data-card-texture='marble'] .design-icon > g {
+  filter: url(#engrave-icon);
 }
 
 /* Briefly animate colours when the theme changes (see applySettings). */
@@ -135,7 +265,7 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--bg);
+  background: var(--bg-art), var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
@@ -252,6 +382,8 @@ button {
 }
 
 .home-content {
+  position: relative;
+  z-index: 1;
   transition: transform 0.45s var(--ease-out);
 }
 
@@ -267,10 +399,11 @@ button {
   font-size: clamp(56px, 12vw, 112px);
   font-weight: 400;
   line-height: 1;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--title-tracking);
+  color: var(--title-color);
   /* A hard, slightly darker copy just below-right makes the title stand out. */
   text-shadow: 0.035em 0.035em 0 var(--title-shadow);
-  margin-right: -0.08em; /* keep the tracked word optically centred */
+  margin-right: calc(-1 * var(--title-tracking)); /* keep the tracked word optically centred */
   animation: logo-in 0.8s ease-out;
 }
 
@@ -427,6 +560,253 @@ button {
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+/* ---- Beach scene ----------------------------------------------------------
+   Home-screen art for the Beach theme (markup in js/beach.js): the sea along
+   the top with waves washing in and out over the sand, and beach things in
+   the corners. */
+
+.beach-scene {
+  display: none;
+}
+
+[data-theme='beach'] .home {
+  --shore-h: clamp(120px, 21vh, 210px);
+  min-height: 100dvh;
+}
+
+[data-theme='beach'] .beach-scene {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+[data-theme='beach'] .home-header {
+  padding-top: calc(var(--shore-h) + 8px);
+}
+
+[data-theme='beach'] .settings-btn {
+  color: rgb(255 255 255 / 0.92);
+}
+
+[data-theme='beach'] .settings-btn:hover {
+  background: rgb(255 255 255 / 0.16);
+}
+
+.shore {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--shore-h);
+}
+
+.shore svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* One tide cycle: the water runs up the sand, then slides back, leaving the
+   sand it covered darker for a moment. */
+.shore .water,
+.shore .swash {
+  animation: tide 7s ease-in-out infinite;
+}
+
+.shore .swash {
+  fill: #c6f1eb;
+  opacity: 0.75;
+  animation-delay: -0.25s;
+}
+
+.shore .wet {
+  fill: #b98f55;
+  animation: wet-sand 7s ease-in-out infinite;
+}
+
+.shore .foam,
+.shore .foam-back,
+.shore .bubbles {
+  fill: none;
+  stroke: #ffffff;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.shore .foam {
+  stroke-width: 5;
+  opacity: 0.95;
+}
+
+.shore .foam-back {
+  stroke-width: 2.5;
+  opacity: 0.45;
+  animation: foam-drift 7s ease-in-out infinite;
+}
+
+.shore .bubbles {
+  stroke-width: 3;
+  stroke-dasharray: 1 9;
+  opacity: 0.8;
+}
+
+@keyframes tide {
+  0%,
+  100% {
+    transform: translateY(-16%);
+  }
+  50% {
+    transform: translateY(5%);
+  }
+}
+
+@keyframes wet-sand {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  75% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes foam-drift {
+  0%,
+  100% {
+    transform: translate(-1%, -26px);
+  }
+  50% {
+    transform: translate(1%, -18px);
+  }
+}
+
+.deco {
+  position: absolute;
+  display: block;
+  overflow: visible;
+}
+
+.deco-turtle {
+  top: calc(var(--shore-h) + 14px);
+  left: 5%;
+  width: clamp(54px, 7vw, 96px);
+  rotate: -24deg;
+}
+
+.deco-turtle .flipper {
+  transform-box: fill-box;
+  transform-origin: 100% 50%;
+  animation: paddle 2.4s ease-in-out infinite;
+}
+
+.deco-turtle .flipper-right {
+  animation-delay: -1.2s;
+}
+
+@keyframes paddle {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(14deg);
+  }
+}
+
+.deco-star {
+  top: calc(var(--shore-h) + 34px);
+  right: 7%;
+  width: clamp(44px, 5.5vw, 76px);
+  rotate: 14deg;
+}
+
+.deco-shells-a {
+  top: calc(var(--shore-h) + 120px);
+  right: 15%;
+  width: clamp(44px, 4.5vw, 64px);
+}
+
+.deco-chair {
+  bottom: 22px;
+  left: calc(3% + clamp(78px, 10vw, 140px));
+  width: clamp(36px, 4.4vw, 62px);
+  rotate: -10deg;
+}
+
+.deco-umbrella {
+  bottom: 70px;
+  left: 3%;
+  width: clamp(120px, 15vw, 210px);
+}
+
+.deco-crab {
+  bottom: clamp(130px, 20vh, 210px);
+  left: 25%;
+  width: clamp(36px, 4vw, 56px);
+  animation: scuttle 9s ease-in-out infinite;
+}
+
+/* Sideways dashes with pauses, like a crab. */
+@keyframes scuttle {
+  0%,
+  12% {
+    translate: 0 0;
+  }
+  22%,
+  40% {
+    translate: 70px 0;
+  }
+  50%,
+  68% {
+    translate: 40px 0;
+  }
+  80%,
+  100% {
+    translate: 0 0;
+  }
+}
+
+.deco-shells-b {
+  bottom: 26px;
+  left: 44%;
+  width: clamp(44px, 4.5vw, 64px);
+  rotate: 25deg;
+}
+
+.deco-castle {
+  bottom: 28px;
+  right: 4%;
+  width: clamp(100px, 12vw, 170px);
+}
+
+/* Phones: fewer, smaller things so the sand isn't crowded. */
+@media (max-width: 600px) {
+  .deco-shells-a,
+  .deco-shells-b {
+    display: none;
+  }
+
+  .deco-star {
+    top: calc(var(--shore-h) + 10px);
+    right: 4%;
+  }
+
+  .deco-turtle {
+    top: calc(var(--shore-h) + 4px);
+    left: 3%;
+  }
+
+  .deco-crab {
+    bottom: 36px;
+    left: 44%;
+  }
 }
 
 /* ---- Settings drawer -----------------------------------------------------
@@ -614,10 +994,15 @@ button {
   aspect-ratio: 4 / 3;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--bg);
+  background: var(--bg-art), var(--bg);
   transition:
     transform 0.2s var(--ease-out),
     box-shadow 0.2s;
+}
+
+/* Theme previews also show the theme's scenery, like the beach's sea. */
+.choice-preview[data-theme] {
+  background: var(--preview-art), var(--bg);
 }
 
 .choice:hover .choice-preview {
@@ -640,6 +1025,24 @@ button {
   box-shadow:
     var(--tile-edge),
     0 4px 0 var(--tile-side);
+}
+
+/* A mini card showing one texture with the current design on it. */
+.texture-swatch {
+  display: grid;
+  place-items: center;
+  width: 64%;
+  aspect-ratio: 3 / 2;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  background-size: cover;
+  box-shadow: var(--card-shadow);
+}
+
+.texture-swatch .design-icon {
+  width: 80%;
+  height: 80%;
 }
 
 .choice-preview > .design-icon {
@@ -734,6 +1137,7 @@ button {
   border: 1px solid var(--card-border);
   border-radius: calc(min(var(--card-w), var(--card-h)) * 0.09);
   background: var(--card-bg);
+  background-size: cover;
   box-shadow: var(--card-shadow);
   cursor: pointer;
   transition:
@@ -776,17 +1180,42 @@ button {
   }
 }
 
+/* A found set flashes once, then all three cards fade out together. */
 .card.found {
-  box-shadow:
-    0 0 0 3px var(--good),
-    var(--raised-shadow);
-  animation: found 0.28s ease-in forwards;
+  --flash: color-mix(in srgb, var(--good) 35%, transparent);
+  box-shadow: 0 0 0 3px var(--good);
+  animation: found 0.38s linear forwards;
 }
 
+/* The flash is an inset shadow so it tints any card texture, not just plain
+   backgrounds. */
 @keyframes found {
-  to {
+  0% {
+    transform: scale(1);
+    box-shadow:
+      inset 0 0 0 999px transparent,
+      0 0 0 3px var(--good),
+      0 0 0 var(--good);
+  }
+  15% {
+    transform: scale(1.05);
+    box-shadow:
+      inset 0 0 0 999px var(--flash),
+      0 0 0 3px var(--good),
+      0 0 28px var(--good);
+    opacity: 1;
+  }
+  35% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.92);
+    box-shadow:
+      inset 0 0 0 999px var(--flash),
+      0 0 0 3px var(--good),
+      0 0 0 var(--good);
     opacity: 0;
-    transform: scale(0.82);
   }
 }
 

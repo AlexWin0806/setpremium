@@ -44,9 +44,30 @@ const NUMBERS = ['one', 'two', 'three'];
 const COLORS = ['red', 'green', 'purple'];
 const SHADINGS = ['solid', 'striped', 'outlined'];
 
-// Stripe patterns are shared by every card, so they live in one hidden SVG.
-// Colours come from the theme's --set-color-N variables. `stripes` runs across
-// the shape; `stripes-diagonal` leans from bottom left to top right.
+// Makes symbols look engraved: a soft shadow inside their top edge and a thin
+// light rim below them. `k` scales the offsets to the user units it's used in.
+// Colours come from the theme's --engrave-* variables. Enabled per card
+// texture in styles.css.
+function engraveFilter(id, k) {
+  return (
+    `<filter id="${id}" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">` +
+    '<feFlood style="flood-color:var(--engrave-shadow)"/>' +
+    '<feComposite in2="SourceAlpha" operator="out"/>' +
+    `<feOffset dy="${1.6 * k}"/>` +
+    `<feGaussianBlur stdDeviation="${0.9 * k}"/>` +
+    '<feComposite in2="SourceAlpha" operator="in" result="shadow"/>' +
+    '<feFlood style="flood-color:var(--engrave-highlight)"/>' +
+    '<feComposite in2="SourceAlpha" operator="in"/>' +
+    `<feOffset dy="${1.6 * k}"/>` +
+    '<feComposite in2="SourceAlpha" operator="out" result="rim"/>' +
+    '<feMerge><feMergeNode in="rim"/><feMergeNode in="SourceGraphic"/><feMergeNode in="shadow"/></feMerge>' +
+    '</filter>'
+  );
+}
+
+// Stripe patterns and filters are shared by every card, so they live in one
+// hidden SVG. Colours come from the theme's --set-color-N variables. `stripes`
+// runs across the shape; `stripes-diagonal` leans from bottom left to top right.
 export function installCardDefs() {
   if (document.getElementById('card-defs')) return;
   const pattern = (id, c, extra) =>
@@ -55,9 +76,11 @@ export function installCardDefs() {
   const patterns = COLORS.map(
     (_, c) => pattern('stripes', c, '') + pattern('stripes-diagonal', c, ' patternTransform="rotate(45)"'),
   ).join('');
+  // Cards are drawn in card units; design icons at about a fifth of that.
+  const filters = engraveFilter('engrave', 1) + engraveFilter('engrave-icon', 0.22);
   document.body.insertAdjacentHTML(
     'afterbegin',
-    `<svg id="card-defs" class="svg-defs" aria-hidden="true" focusable="false"><defs>${patterns}</defs></svg>`,
+    `<svg id="card-defs" class="svg-defs" aria-hidden="true" focusable="false"><defs>${patterns}${filters}</defs></svg>`,
   );
 }
 
@@ -78,7 +101,9 @@ export function cardSVG(id, orientation, design) {
       `<path d="${design.shapes[shape]}" transform="translate(${x} ${y})${turn}" ` +
       `style="fill:${fill};stroke:${paint};stroke-width:${design.strokeWidth}"/>`;
   }
-  return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true">${paths}</svg>`;
+  // The group is unrotated, so effects on it (like engraving) light every
+  // card from the same side.
+  return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><g class="symbols">${paths}</g></svg>`;
 }
 
 export function describeCard(id, design) {
