@@ -1,24 +1,28 @@
-import { ClassicGame } from './classic-game.js';
-import { CARD_RATIO, cardSVG, describeCard } from './cards.js';
+import { CARD_RATIO, cardSVG, describeCard, getDesign } from './cards.js';
+import { formatTime } from './format.js';
 import { ICONS } from './icons.js';
 import { back } from './router.js';
-import { bestTime, recordGame } from './stats.js';
+import { SetGame } from './set-game.js';
+import { getSettings } from './settings.js';
+import { bestTime, recordGame, recordSet } from './stats.js';
 
-const MODE = 'classic';
 const MAX_CARD_LONG_SIDE = 340; // px, so cards don't get silly on big screens
 const DEAL_STAGGER_MS = 45;
 const FOUND_MS = 280;
 const WRONG_MS = 380;
 
-export function mountGame(root) {
+// `mode` is an entry from modes.js; `mode.targetSets` ends the game early.
+export function mountGame(root, mode) {
+  const target = mode.targetSets ?? null;
   const view = document.createElement('div');
   view.className = 'view game';
   view.innerHTML = `
     <header class="game-bar">
       <button class="icon-btn" type="button" data-action="back" aria-label="Back to menu">${ICONS.back}</button>
       <div class="game-stats">
-        <div class="stat"><span class="stat-value" data-stat="time">0:00</span><span class="stat-label">Time</span></div>
-        <div class="stat"><span class="stat-value" data-stat="sets">0</span><span class="stat-label">Sets</span></div>
+        <div class="stat stat-time"><span class="stat-value" data-stat="time"></span><span class="stat-label">Time</span></div>
+        <div class="stat stat-time stat-best"><span class="stat-value" data-stat="best"></span><span class="stat-label">Best</span></div>
+        <div class="stat"><span class="stat-value" data-stat="sets"></span><span class="stat-label">Sets</span></div>
         <div class="stat"><span class="stat-value" data-stat="deck">0</span><span class="stat-label">Deck</span></div>
       </div>
       <span class="icon-btn-spacer"></span>
@@ -36,8 +40,10 @@ export function mountGame(root) {
   const timeEl = stat('time');
   const setsEl = stat('sets');
   const deckEl = stat('deck');
+  const bestEl = stat('best');
   const announcer = view.querySelector('[data-announce]');
 
+  const design = getDesign(getSettings().cardDesign);
   const cards = new Map(); // card id -> element
   let game;
   let selected = []; // card ids
@@ -77,9 +83,9 @@ export function mountGame(root) {
     el.type = 'button';
     el.className = 'card deal';
     el.dataset.id = id;
-    el.setAttribute('aria-label', describeCard(id));
+    el.setAttribute('aria-label', describeCard(id, design));
     el.setAttribute('aria-pressed', 'false');
-    el.innerHTML = cardSVG(id, orientation);
+    el.innerHTML = cardSVG(id, orientation, design);
     return el;
   }
 
@@ -92,8 +98,13 @@ export function mountGame(root) {
   }
 
   function renderStats() {
-    setsEl.textContent = game.setsFound;
+    setsEl.textContent = target ? `${game.setsFound}/${target}` : game.setsFound;
     deckEl.textContent = game.deck.length;
+  }
+
+  function renderBest() {
+    const best = bestTime(mode.id);
+    bestEl.textContent = best === null ? '—' : formatTime(best);
   }
 
   function renderTime() {
@@ -133,7 +144,7 @@ export function mountGame(root) {
     board.style.setProperty('--card-h', `${best.h}px`);
     if (best.orient !== orientation) {
       orientation = best.orient;
-      for (const [id, el] of cards) el.innerHTML = cardSVG(id, orientation);
+      for (const [id, el] of cards) el.innerHTML = cardSVG(id, orientation, design);
     }
   }
 
@@ -155,6 +166,7 @@ export function mountGame(root) {
     busy = true;
 
     if (ok) {
+      recordSet();
       els.forEach((el) => el.classList.add('found'));
       announcer.textContent = `Set! ${game.setsFound} found.`;
       later(FOUND_MS, () => {
@@ -178,15 +190,11 @@ export function mountGame(root) {
   function finish() {
     clock.pause();
     renderTime();
-    const timeMs = Math.round(clock.elapsed());
-    const previousBest = bestTime(MODE);
-    recordGame({
-      mode: MODE,
-      timeMs,
-      sets: game.setsFound,
-      mistakes: game.mistakes,
-      cardsLeft: game.board.length,
-    });
+    const timeMs = Math.floor(clock.elapsed()); // floor, like the on-screen timer
+    const cardsLeft = game.board.length + game.deck.length;
+    const previousBest = bestTime(mode.id);
+    recordGame({ mode: mode.id, timeMs, sets: game.setsFound, mistakes: game.mistakes, cardsLeft });
+    renderBest();
 
     let bestLine = '';
     if (previousBest !== null && timeMs < previousBest) bestLine = '<p class="panel-best">New best time</p>';
@@ -196,12 +204,12 @@ export function mountGame(root) {
     overlay.className = 'overlay';
     overlay.innerHTML = `
       <div class="panel" role="dialog" aria-modal="true" aria-labelledby="end-title">
-        <p class="panel-kicker">No sets left</p>
+        <p class="panel-kicker">${target ? `${mode.name} complete` : 'No sets left'}</p>
         <h2 class="panel-title" id="end-title">${formatTime(timeMs)}</h2>
         ${bestLine}
         <dl class="results">
           <div><dt>Sets</dt><dd>${game.setsFound}</dd></div>
-          <div><dt>Cards left</dt><dd>${game.board.length}</dd></div>
+          ${target ? '' : `<div><dt>Cards left</dt><dd>${cardsLeft}</dd></div>`}
           <div><dt>Mistakes</dt><dd>${game.mistakes}</dd></div>
         </dl>
         <div class="panel-actions">
@@ -220,9 +228,10 @@ export function mountGame(root) {
     cards.clear();
     selected = [];
     busy = false;
-    game = new ClassicGame();
+    game = new SetGame({ targetSets: target });
     clock.reset();
     renderTime();
+    renderBest();
     renderBoard();
   }
 
@@ -267,13 +276,17 @@ export function mountGame(root) {
 
   const resizer = new ResizeObserver(layout);
   resizer.observe(wrap);
-  const ticker = setInterval(renderTime, 250);
+  // The timer shows hundredths, so it redraws every frame.
+  let frame = requestAnimationFrame(function tick() {
+    renderTime();
+    frame = requestAnimationFrame(tick);
+  });
 
   newGame();
 
   return () => {
     disposed = true;
-    clearInterval(ticker);
+    cancelAnimationFrame(frame);
     resizer.disconnect();
     document.removeEventListener('keydown', onKey);
     document.removeEventListener('visibilitychange', onVisibility);
@@ -300,12 +313,4 @@ class Clock {
   resume() {
     if (this.since === null) this.since = performance.now();
   }
-}
-
-function formatTime(ms) {
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const ss = String(s % 60).padStart(2, '0');
-  return h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
 }

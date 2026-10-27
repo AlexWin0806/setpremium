@@ -1,26 +1,59 @@
 import { attributes } from './set.js';
-import { SHAPES, SHAPE_NAMES } from './shapes.js';
+import { FRUITS, SHAPES } from './shapes.js';
 
-// Card geometry in SVG units, portrait. Landscape cards are the same drawing
-// rotated a quarter turn.
+// Card geometry in SVG units, portrait. Landscape cards swap width and height
+// and lay the shapes out side by side.
 const W = 200;
 const H = 300;
-const SPACING = 76;
 
 export const CARD_RATIO = H / W;
+
+// Card designs. `upright` shapes keep their orientation on landscape cards;
+// the others turn a quarter with the card, like the printed classic deck.
+// `stripes` names the pattern used for striped shading (see installCardDefs).
+export const CARD_DESIGNS = [
+  {
+    id: 'classic',
+    name: 'Classic',
+    shapes: SHAPES,
+    nouns: [['diamond', 'diamonds'], ['squiggle', 'squiggles'], ['oval', 'ovals']],
+    spacing: 76,
+    upright: false,
+    strokeWidth: 5,
+    stripes: 'stripes',
+    iconScale: 0.21,
+  },
+  {
+    id: 'fruits',
+    name: 'Fruits',
+    shapes: FRUITS,
+    nouns: [['apple', 'apples'], ['banana', 'bananas'], ['bunch of grapes', 'bunches of grapes']],
+    spacing: 88,
+    upright: true,
+    strokeWidth: 3.5,
+    stripes: 'stripes-diagonal',
+    iconScale: 0.18,
+  },
+];
+
+export function getDesign(id) {
+  return CARD_DESIGNS.find((d) => d.id === id) ?? CARD_DESIGNS[0];
+}
 
 const NUMBERS = ['one', 'two', 'three'];
 const COLORS = ['red', 'green', 'purple'];
 const SHADINGS = ['solid', 'striped', 'outlined'];
 
 // Stripe patterns are shared by every card, so they live in one hidden SVG.
-// Colours come from the theme's --set-color-N variables.
+// Colours come from the theme's --set-color-N variables. `stripes` runs across
+// the shape; `stripes-diagonal` leans from bottom left to top right.
 export function installCardDefs() {
   if (document.getElementById('card-defs')) return;
+  const pattern = (id, c, extra) =>
+    `<pattern id="${id}-${c}" patternUnits="userSpaceOnUse" width="9" height="10"${extra}>` +
+    `<rect width="3" height="10" style="fill:var(--set-color-${c})"/></pattern>`;
   const patterns = COLORS.map(
-    (_, c) =>
-      `<pattern id="stripes-${c}" patternUnits="userSpaceOnUse" width="9" height="10">` +
-      `<rect width="3" height="10" style="fill:var(--set-color-${c})"/></pattern>`,
+    (_, c) => pattern('stripes', c, '') + pattern('stripes-diagonal', c, ' patternTransform="rotate(45)"'),
   ).join('');
   document.body.insertAdjacentHTML(
     'afterbegin',
@@ -28,26 +61,46 @@ export function installCardDefs() {
   );
 }
 
-export function cardSVG(id, orientation = 'portrait') {
+export function cardSVG(id, orientation, design) {
   const { number, color, shading, shape } = attributes(id);
   const paint = `var(--set-color-${color})`;
-  const fill = [paint, `url(#stripes-${color})`, 'none'][shading];
+  const fill = [paint, `url(#${design.stripes}-${color})`, 'none'][shading];
   const count = number + 1;
+  const landscape = orientation === 'landscape';
+  const [w, h] = landscape ? [H, W] : [W, H];
+  const turn = landscape && !design.upright ? ' rotate(90)' : '';
 
   let paths = '';
   for (let i = 0; i < count; i++) {
-    const y = H / 2 + (i - (count - 1) / 2) * SPACING;
-    paths += `<path d="${SHAPES[shape]}" transform="translate(${W / 2} ${y})" style="fill:${fill};stroke:${paint}"/>`;
+    const offset = (i - (count - 1) / 2) * design.spacing;
+    const [x, y] = landscape ? [w / 2 + offset, h / 2] : [w / 2, h / 2 + offset];
+    paths +=
+      `<path d="${design.shapes[shape]}" transform="translate(${x} ${y})${turn}" ` +
+      `style="fill:${fill};stroke:${paint};stroke-width:${design.strokeWidth}"/>`;
   }
-
-  const landscape = orientation === 'landscape';
-  const viewBox = landscape ? `0 0 ${H} ${W}` : `0 0 ${W} ${H}`;
-  const turn = landscape ? ` transform="translate(${H} 0) rotate(90)"` : '';
-  return `<svg viewBox="${viewBox}" aria-hidden="true"><g${turn}>${paths}</g></svg>`;
+  return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true">${paths}</svg>`;
 }
 
-export function describeCard(id) {
+export function describeCard(id, design) {
   const { number, color, shading, shape } = attributes(id);
-  const noun = SHAPE_NAMES[shape] + (number > 0 ? 's' : '');
+  const noun = design.nouns[shape][number > 0 ? 1 : 0];
   return `${NUMBERS[number]} ${COLORS[color]} ${SHADINGS[shading]} ${noun}`;
+}
+
+// A design's three shapes side by side in the three card colours, standing
+// upright. Used for the Classic mode tile and the design picker.
+export function designIcon(design) {
+  const turn = design.upright ? '' : 'rotate(90) ';
+  return (
+    '<svg viewBox="0 0 48 48" aria-hidden="true" class="design-icon">' +
+    design.shapes
+      .map(
+        (d, i) =>
+          `<g transform="translate(${24 + (i - 1) * 16} 24)"><g class="hop">` +
+          `<path d="${d}" transform="${turn}scale(${design.iconScale})" ` +
+          `style="fill:var(--set-color-${i});stroke:var(--set-color-${i})"/></g></g>`,
+      )
+      .join('') +
+    '</svg>'
+  );
 }

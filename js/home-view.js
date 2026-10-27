@@ -1,7 +1,12 @@
+import { designIcon, getDesign } from './cards.js';
 import { ICONS } from './icons.js';
 import { MODES } from './modes.js';
 import { go } from './router.js';
+import { getSettings } from './settings.js';
 import { createSettingsPanel } from './settings-panel.js';
+
+const modeIcon = (mode) =>
+  mode.icon === 'design' ? designIcon(getDesign(getSettings().cardDesign)) : ICONS[mode.icon];
 
 export function mountHome(root) {
   const view = document.createElement('div');
@@ -16,9 +21,9 @@ export function mountHome(root) {
         ${MODES.map(
           (mode) => `
           <button class="mode-tile" type="button" data-mode="${mode.id}"
-            ${mode.view ? '' : 'aria-disabled="true"'}>
-            ${mode.view ? '' : '<span class="badge">Soon</span>'}
-            <span class="mode-icon">${ICONS[mode.icon]}</span>
+            ${mode.playable ? '' : 'aria-disabled="true"'}>
+            ${mode.playable ? '' : '<span class="badge">Soon</span>'}
+            <span class="mode-icon">${modeIcon(mode)}</span>
             <span class="mode-name">${mode.name}</span>
             <span class="mode-tagline">${mode.tagline}</span>
           </button>`,
@@ -33,6 +38,17 @@ export function mountHome(root) {
   });
   const destroySettings = createSettingsPanel(view, view.querySelector('.settings-btn'));
 
+  // Show a new card design on the mode tiles straight away.
+  const onSettingsChange = () => {
+    for (const mode of MODES) {
+      if (mode.icon === 'design') view.querySelector(`[data-mode="${mode.id}"] .mode-icon`).innerHTML = modeIcon(mode);
+    }
+  };
+  window.addEventListener('settingschange', onSettingsChange);
+
   root.append(view);
-  return destroySettings;
+  return () => {
+    destroySettings();
+    window.removeEventListener('settingschange', onSettingsChange);
+  };
 }

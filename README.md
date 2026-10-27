@@ -21,17 +21,23 @@ Open the site in Safari, tap **Share → Add to Home Screen**. It launches
 full-screen with its own icon. Offline play needs the site to be served over
 HTTPS, because that's when the service worker is allowed to run.
 
+## Saved data
+
+Settings (theme, card design) and statistics are kept in the browser's
+`localStorage`, so each browser remembers its own. On iPhone, the home-screen
+app has its own storage, separate from Safari.
+
 ## Layout
 
 | Path | What |
 | --- | --- |
 | `js/set.js` | Card encoding and rules (`isSet`, `findSet`, deck) |
-| `js/classic-game.js` | Classic mode state: deal, claim, add cards, game over |
-| `js/cards.js`, `js/shapes.js` | Card SVG drawing |
+| `js/set-game.js` | Game state shared by the modes: dealing (never more than 12 cards), claims, game over |
+| `js/cards.js`, `js/shapes.js` | Card designs (Classic, Fruits) and card SVG drawing |
 | `js/game-view.js` | Game screen: board layout, input, timer, end panel |
-| `js/home-view.js`, `js/modes.js` | Home screen and the game-mode list |
+| `js/home-view.js`, `js/modes.js` | Home screen and the game-mode list (Classic, Fast Five, …) |
 | `js/settings-panel.js`, `js/settings.js` | Slide-out settings drawer, theme list and stored preferences |
-| `js/stats.js` | Finished-game history (in `localStorage`) |
+| `js/stats.js` | Lifetime statistics and finished-game history |
 | `css/styles.css` | All styles. Each theme is a block of colour tokens near the top (`[data-theme='classic-dark']`, `[data-theme='classic-light']`) |
 | `fonts/` | Notable (title font) by Eli Block, Hana Tanimura and Noémie Le Coz, SIL OFL 1.1 |
 | `sw.js` | Offline cache. Add new files to `PRECACHE` and bump `VERSION` |

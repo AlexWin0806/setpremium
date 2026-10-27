@@ -1,3 +1,4 @@
+import { CARD_DESIGNS } from './cards.js';
 import { load, save } from './storage.js';
 
 // Each theme's colours live in css/styles.css under [data-theme='<id>'].
@@ -7,20 +8,26 @@ export const THEMES = [
   { id: 'classic-light', name: 'Classic Light' },
 ];
 
-const DEFAULTS = { theme: 'classic-dark' };
+// Settings are saved in this browser (localStorage), so each device — desktop
+// browser, phone browser, home-screen app — remembers its own last choices.
+const DEFAULTS = { theme: 'classic-dark', cardDesign: 'classic' };
 
 let settings = { ...DEFAULTS, ...load('settings', {}) };
 if (!THEMES.some((t) => t.id === settings.theme)) settings.theme = DEFAULTS.theme;
+if (!CARD_DESIGNS.some((d) => d.id === settings.cardDesign)) settings.cardDesign = DEFAULTS.cardDesign;
 
 export function getSettings() {
   return settings;
 }
 
+// Saves the change and fires a `settingschange` event on window so open
+// screens can update live.
 export function updateSettings(patch) {
   const themeChanged = patch.theme && patch.theme !== settings.theme;
   settings = { ...settings, ...patch };
   save('settings', settings);
   applySettings({ animate: themeChanged });
+  window.dispatchEvent(new CustomEvent('settingschange', { detail: settings }));
 }
 
 export function applySettings({ animate = false } = {}) {

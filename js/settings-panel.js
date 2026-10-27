@@ -1,5 +1,8 @@
+import { CARD_DESIGNS, designIcon } from './cards.js';
+import { formatTime } from './format.js';
 import { ICONS } from './icons.js';
 import { THEMES, getSettings, updateSettings } from './settings.js';
+import { bestTime, getStats } from './stats.js';
 
 // Settings drawer that slides in from the right over `host`. The page behind
 // stays visible so customization changes can be seen as they're made.
@@ -17,37 +20,45 @@ export function createSettingsPanel(host, trigger) {
         <section class="group" style="--i:0">
           <h3 class="group-title">Statistics</h3>
           <ul class="group-list">
-            ${row('chart', 'Statistics', 'Soon')}
+            ${row('layers', 'Sets found', '<span data-stat="sets-found"></span>')}
+            ${row('trophy', 'Fastest Classic', '<span data-stat="best-classic"></span>')}
+            ${row('fastFive', 'Fastest Fast Five', '<span data-stat="best-fast-five"></span>')}
           </ul>
         </section>
         <section class="group" style="--i:1">
           <h3 class="group-title">Customization</h3>
           <ul class="group-list">
-            <li class="theme-picker">
-              <span class="row-icon">${ICONS.palette}</span>
-              <span class="row-label" id="theme-label">Theme</span>
-              <div class="theme-options" role="radiogroup" aria-labelledby="theme-label">
-                ${THEMES.map(
-                  (theme) => `
-                  <button class="theme-option" type="button" role="radio" data-theme-id="${theme.id}">
-                    <span class="theme-preview" data-theme="${theme.id}">
-                      <span class="theme-preview-tile">${ICONS.classic}</span>
-                    </span>
-                    <span class="theme-name">${theme.name}</span>
-                  </button>`,
-                ).join('')}
-              </div>
-            </li>
-            ${row('cards', 'Card design', 'Classic')}
+            ${picker(
+              'theme',
+              'palette',
+              'Theme',
+              THEMES.map((theme) => ({
+                id: theme.id,
+                name: theme.name,
+                preview: `<span class="choice-preview" data-theme="${theme.id}">
+                  <span class="choice-preview-tile">${designIcon(CARD_DESIGNS[0])}</span>
+                </span>`,
+              })),
+            )}
+            ${picker(
+              'cardDesign',
+              'cards',
+              'Card design',
+              CARD_DESIGNS.map((design) => ({
+                id: design.id,
+                name: design.name,
+                preview: `<span class="choice-preview">${designIcon(design)}</span>`,
+              })),
+            )}
           </ul>
         </section>
-        <p class="drawer-note">More customization is coming soon.</p>
+        <p class="drawer-note">Settings and statistics are saved on this device.</p>
       </div>
     </aside>
   `,
   );
   const drawer = host.querySelector('.drawer');
-  const themeOptions = [...drawer.querySelectorAll('.theme-option')];
+  const choices = [...drawer.querySelectorAll('.choice')];
   trigger.setAttribute('aria-controls', drawer.id);
   trigger.setAttribute('aria-expanded', 'false');
 
@@ -55,24 +66,32 @@ export function createSettingsPanel(host, trigger) {
 
   function setOpen(open) {
     if (open === isOpen()) return;
+    if (open) renderStats();
     host.classList.toggle('settings-open', open);
     trigger.setAttribute('aria-expanded', String(open));
     if (open) drawer.querySelector('[data-action="close-settings"]').focus({ preventScroll: true });
     else if (drawer.contains(document.activeElement)) trigger.focus({ preventScroll: true });
   }
 
-  function renderTheme() {
-    const current = getSettings().theme;
-    for (const option of themeOptions) {
-      const on = option.dataset.themeId === current;
-      option.setAttribute('aria-checked', String(on));
-      option.tabIndex = on ? 0 : -1;
+  function renderStats() {
+    const best = (mode) => (bestTime(mode) === null ? '—' : formatTime(bestTime(mode)));
+    drawer.querySelector('[data-stat="sets-found"]').textContent = getStats().setsFound.toLocaleString();
+    drawer.querySelector('[data-stat="best-classic"]').textContent = best('classic');
+    drawer.querySelector('[data-stat="best-fast-five"]').textContent = best('fast-five');
+  }
+
+  function renderChoices() {
+    const settings = getSettings();
+    for (const choice of choices) {
+      const on = settings[choice.dataset.setting] === choice.dataset.value;
+      choice.setAttribute('aria-checked', String(on));
+      choice.tabIndex = on ? 0 : -1;
     }
   }
 
-  function chooseTheme(option) {
-    updateSettings({ theme: option.dataset.themeId });
-    renderTheme();
+  function choose(choice) {
+    updateSettings({ [choice.dataset.setting]: choice.dataset.value });
+    renderChoices();
   }
 
   const onKey = (event) => {
@@ -81,21 +100,22 @@ export function createSettingsPanel(host, trigger) {
   trigger.addEventListener('click', () => setOpen(!isOpen()));
   host.addEventListener('click', (event) => {
     if (event.target.closest('[data-action="close-settings"]')) setOpen(false);
-    const option = event.target.closest('.theme-option');
-    if (option) chooseTheme(option);
+    const choice = event.target.closest('.choice');
+    if (choice) choose(choice);
   });
-  // Arrow keys move between theme options, as in a native radio group.
-  drawer.querySelector('.theme-options').addEventListener('keydown', (event) => {
+  // Arrow keys move between options in a picker, as in a native radio group.
+  drawer.addEventListener('keydown', (event) => {
     const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
-    if (!step) return;
+    const group = step && event.target.closest('.choices');
+    if (!group) return;
     event.preventDefault();
-    const at = themeOptions.indexOf(document.activeElement);
-    const next = themeOptions[(at + step + themeOptions.length) % themeOptions.length];
+    const options = [...group.querySelectorAll('.choice')];
+    const next = options[(options.indexOf(event.target) + step + options.length) % options.length];
     next.focus();
-    chooseTheme(next);
+    choose(next);
   });
   document.addEventListener('keydown', onKey);
-  renderTheme();
+  renderChoices();
 
   return () => document.removeEventListener('keydown', onKey);
 }
@@ -106,5 +126,26 @@ function row(icon, label, detail) {
       <span class="row-icon">${ICONS[icon]}</span>
       <span class="row-label">${label}</span>
       <span class="row-detail">${detail}</span>
+    </li>`;
+}
+
+// A labelled row of visual options for one setting.
+function picker(setting, icon, label, options) {
+  const labelId = `${setting}-label`;
+  return `
+    <li class="picker">
+      <span class="row-icon">${ICONS[icon]}</span>
+      <span class="row-label" id="${labelId}">${label}</span>
+      <div class="choices" role="radiogroup" aria-labelledby="${labelId}">
+        ${options
+          .map(
+            (option) => `
+          <button class="choice" type="button" role="radio" data-setting="${setting}" data-value="${option.id}">
+            ${option.preview}
+            <span class="choice-name">${option.name}</span>
+          </button>`,
+          )
+          .join('')}
+      </div>
     </li>`;
 }

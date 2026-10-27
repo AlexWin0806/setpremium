@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { attributes, findSet, isSet, newDeck, thirdCard } from '../js/set.js';
-import { ClassicGame } from '../js/classic-game.js';
+import { SetGame } from '../js/set-game.js';
 
 // Small deterministic PRNG so failures are reproducible.
 function mulberry32(seed) {
@@ -48,30 +48,52 @@ test('findSet returns valid indices or null', () => {
   assert.equal(findSet([0, 1, 3]), null);
 });
 
-test('a classic game always ends with an empty deck and no set on the board', () => {
-  for (let seed = 1; seed <= 300; seed++) {
-    const rng = mulberry32(seed);
-    const game = new ClassicGame({ rng });
+test('a classic game never shows more than 12 cards and accounts for every card', () => {
+  let stuck = 0;
+  for (let seed = 1; seed <= 1000; seed++) {
+    const game = new SetGame({ rng: mulberry32(seed) });
     let turns = 0;
     while (!game.over) {
+      assert.equal(game.board.length <= 12, true);
       const found = findSet(game.board);
       assert.ok(found, 'a set must exist while the game is not over');
       const before = game.board.filter((_, i) => !found.includes(i));
       assert.ok(game.claim(found));
       // Cards that were not claimed stay on the board.
       for (const card of before) assert.ok(game.board.includes(card));
-      assert.ok(game.board.length % 3 === 0);
       assert.ok(++turns <= 27);
     }
-    assert.equal(game.deck.length, 0);
+    assert.ok(game.board.length <= 12);
     assert.equal(findSet(game.board), null);
-    assert.equal(game.setsFound * 3 + game.board.length, 81);
-    assert.equal(new Set(game.board).size, game.board.length);
+    assert.equal(game.setsFound * 3 + game.board.length + game.deck.length, 81);
+    assert.equal(new Set([...game.board, ...game.deck]).size, game.board.length + game.deck.length);
+    if (game.deck.length) {
+      assert.ok(game.stuck);
+      stuck++;
+    }
+  }
+  console.log(`games ending with cards still in the deck: ${stuck} / 1000`);
+});
+
+test('the first 12 cards always contain a set', () => {
+  for (let seed = 1; seed <= 2000; seed++) {
+    const game = new SetGame({ rng: mulberry32(seed) });
+    assert.equal(game.board.length, 12);
+    assert.ok(findSet(game.board));
+  }
+});
+
+test('Fast Five ends after exactly five sets', () => {
+  for (let seed = 1; seed <= 200; seed++) {
+    const game = new SetGame({ rng: mulberry32(seed), targetSets: 5 });
+    while (!game.over) game.claim(findSet(game.board));
+    assert.equal(game.setsFound, 5);
+    assert.equal(game.board.length, 12);
   }
 });
 
 test('a wrong claim counts a mistake and leaves the board alone', () => {
-  const game = new ClassicGame({ rng: mulberry32(7) });
+  const game = new SetGame({ rng: mulberry32(7) });
   const board = [...game.board];
   let bad = null;
   for (let k = 2; k < board.length && !bad; k++) {

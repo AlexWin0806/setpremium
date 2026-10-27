@@ -1,4 +1,5 @@
 import { installCardDefs } from './cards.js';
+import { mountGame } from './game-view.js';
 import { mountHome } from './home-view.js';
 import { findMode } from './modes.js';
 import { startRouter } from './router.js';
@@ -10,7 +11,13 @@ installCardDefs();
 startRouter(
   [
     [/^\/$/, () => mountHome],
-    [/^\/play\/([\w-]+)$/, (id) => findMode(id)?.view],
+    [
+      /^\/play\/([\w-]+)$/,
+      (id) => {
+        const mode = findMode(id);
+        return mode && ((root) => mountGame(root, mode));
+      },
+    ],
   ],
   document.getElementById('app'),
 );

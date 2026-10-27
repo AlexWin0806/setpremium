@@ -39,6 +39,19 @@ export function findSet(cards) {
   return null;
 }
 
+// Board indices of every set on the board.
+export function findAllSets(cards) {
+  const index = new Map(cards.map((id, i) => [id, i]));
+  const sets = [];
+  for (let i = 0; i < cards.length; i++) {
+    for (let j = i + 1; j < cards.length; j++) {
+      const k = index.get(thirdCard(cards[i], cards[j]));
+      if (k > j) sets.push([i, j, k]);
+    }
+  }
+  return sets;
+}
+
 export function shuffle(items, rng = Math.random) {
   const a = [...items];
   for (let i = a.length - 1; i > 0; i--) {
