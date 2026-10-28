@@ -289,8 +289,11 @@
   box-sizing: border-box;
 }
 
+/* The background goes on html, not body, so it fills the whole canvas: on
+   iOS the page also shows behind Safari's toolbar, under the home indicator
+   and when overscrolling, past where a 100dvh body ends. */
 html {
-  background: var(--bg);
+  background: var(--bg-art), var(--bg);
   -webkit-text-size-adjust: 100%;
   overscroll-behavior: none;
 }
@@ -298,7 +301,6 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--bg-art), var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
@@ -767,20 +769,20 @@ button {
 }
 
 .deco-chair {
-  bottom: 22px;
+  bottom: calc(var(--safe-bottom) + 22px);
   left: calc(3% + clamp(78px, 10vw, 140px));
   width: clamp(36px, 4.4vw, 62px);
   rotate: -10deg;
 }
 
 .deco-umbrella {
-  bottom: 70px;
+  bottom: calc(var(--safe-bottom) + 70px);
   left: 3%;
   width: clamp(120px, 15vw, 210px);
 }
 
 .deco-crab {
-  bottom: clamp(130px, 20vh, 210px);
+  bottom: calc(var(--safe-bottom) + clamp(130px, 20vh, 210px));
   left: 25%;
   width: clamp(36px, 4vw, 56px);
   animation: scuttle 9s ease-in-out infinite;
@@ -807,14 +809,14 @@ button {
 }
 
 .deco-shells-b {
-  bottom: 26px;
+  bottom: calc(var(--safe-bottom) + 26px);
   left: 44%;
   width: clamp(44px, 4.5vw, 64px);
   rotate: 25deg;
 }
 
 .deco-castle {
-  bottom: 28px;
+  bottom: calc(var(--safe-bottom) + 28px);
   right: 4%;
   width: clamp(100px, 12vw, 170px);
 }

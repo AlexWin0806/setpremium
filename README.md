@@ -33,7 +33,7 @@ app has its own storage, separate from Safari.
 | --- | --- |
 | `js/set.js` | Card encoding and rules (`isSet`, `findSet`, deck) |
 | `js/set-game.js` | Game state shared by the modes: dealing (never more than 12 cards), claims, game over |
-| `js/cards.js`, `js/shapes.js` | Card designs (Classic, Fruits) and card SVG drawing |
+| `js/cards.js`, `js/shapes.js` | Card designs (Classic, Fruits, Cooldown) and card SVG drawing |
 | `js/game-view.js` | Game screen: board layout, input, timer, end panel |
 | `js/home-view.js`, `js/modes.js` | Home screen and the game-mode list (Classic, Fast Five, …) |
 | `js/settings-panel.js`, `js/settings.js` | Slide-out settings drawer, theme list and stored preferences |

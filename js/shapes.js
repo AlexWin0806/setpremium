@@ -53,19 +53,70 @@ const BANANA = transform(
   (x, y) => [y * 1.2, -x * 1.2],
 );
 
-// Eight grapes in rows of 2, 3, 2, 1, packed like a honeycomb, with a stem.
+// A bunch of grapes in rows of 2, 3, 2, 1, packed like a honeycomb, drawn as
+// just its outline: the outer arcs of the grapes round the edge, each running
+// into the next where they overlap. Then a stem.
 const GRAPE_K = 1.05;
-const GRAPE_R = round(8.5 * GRAPE_K);
-const GRAPE_STEP = 20; // centre to centre, sketch units (leaves a small gap)
-const GRAPE_ROWS = [2, 3, 2, 1];
-const grape = (x, y) =>
-  `M ${round(x * GRAPE_K - GRAPE_R)} ${round(y * GRAPE_K)} ` +
-  `a ${GRAPE_R} ${GRAPE_R} 0 1 0 ${round(2 * GRAPE_R)} 0 a ${GRAPE_R} ${GRAPE_R} 0 1 0 ${round(-2 * GRAPE_R)} 0 Z `;
-const GRAPES =
-  GRAPE_ROWS.flatMap((count, row) =>
-    Array.from({ length: count }, (_, i) =>
-      grape((i - (count - 1) / 2) * GRAPE_STEP, -21.7 + row * GRAPE_STEP * Math.sin(Math.PI / 3)),
-    ),
-  ).join('') + scaled('M 0 -26 C 0 -30 2 -34 6 -37', GRAPE_K);
+const GRAPE_R = 11; // sketch units; more than half the step, so neighbours overlap
+const GRAPE_STEP = 20; // centre to centre
+const GRAPE_ROW_H = GRAPE_STEP * Math.sin(Math.PI / 3);
+// The grapes round the edge, clockwise from the top left, as [column, row]
+// with columns in half steps. The middle grape of row 1 is hidden inside.
+const GRAPE_RING = [[-1, 0], [1, 0], [2, 1], [1, 2], [0, 3], [-1, 2], [-2, 1]].map(([c, r]) => [
+  (c * GRAPE_STEP) / 2,
+  -21.7 + r * GRAPE_ROW_H,
+]);
+// Where a grape's outline meets the next one's, on the outside of the bunch.
+const grapeJoin = ([ax, ay], [bx, by]) => {
+  const h = Math.sqrt(GRAPE_R ** 2 - (GRAPE_STEP / 2) ** 2) / GRAPE_STEP;
+  return [(ax + bx) / 2 + (by - ay) * h, (ay + by) / 2 - (bx - ax) * h];
+};
+const GRAPE_OUTLINE = (() => {
+  const n = GRAPE_RING.length;
+  const joins = GRAPE_RING.map((c, i) => grapeJoin(c, GRAPE_RING[(i + 1) % n]));
+  const pt = ([x, y]) => `${round(x * GRAPE_K)} ${round(y * GRAPE_K)}`;
+  const r = round(GRAPE_R * GRAPE_K);
+  const arcs = GRAPE_RING.map(([cx, cy], i) => {
+    const [from, to] = [joins[(i + n - 1) % n], joins[i]];
+    const turn = (Math.atan2(to[1] - cy, to[0] - cx) - Math.atan2(from[1] - cy, from[0] - cx) + 4 * Math.PI) % (2 * Math.PI);
+    return `A ${r} ${r} 0 ${turn > Math.PI ? 1 : 0} 1 ${pt(to)}`;
+  });
+  return `M ${pt(joins[n - 1])} ${arcs.join(' ')} Z `;
+})();
+const GRAPES = GRAPE_OUTLINE + scaled('M 0 -26 C 0 -30 2 -34 6 -37', GRAPE_K);
 
 export const FRUITS = [APPLE, BANANA, GRAPES];
+
+// Cooldown treats, upright like the fruit and scaled to match them. Lines
+// inside a shape are open paths with no area, so they only show as strokes.
+const COOL_K = 1.1;
+
+// A rounded ice pop with a bite out of its top right, on a stick.
+const POPSICLE = scaled(
+  'M -5 14 L -16 14 C -18.2 14 -20 12.2 -20 10 L -20 -14 ' +
+    'C -20 -25 -11 -34 0 -34 C 4 -34 7.5 -33 10 -31.3 ' +
+    'C 6.6 -27.4 12.5 -22.3 15.9 -26.2 C 11.2 -23.9 14.6 -16.9 19.3 -19.2 ' +
+    'C 19.8 -17.6 20 -15.8 20 -14 L 20 10 C 20 12.2 18.2 14 16 14 L 5 14 ' +
+    'L 5 31 C 5 34 3 36 0 36 C -3 36 -5 34 -5 31 Z',
+  COOL_K,
+);
+
+// A scoop on a waffle cone, then the scoop's dripping edge (drawn the same way
+// round as the outline, so the drips stay filled) and the cone's grid.
+const CONE = scaled(
+  'M -23 -8 C -23 -20.7 -12.7 -31 0 -31 C 12.7 -31 23 -20.7 23 -8 ' +
+    'C 23 -4.5 21 -2 18 -2 L 0 36 L -18 -2 C -21 -2 -23 -4.5 -23 -8 Z ' +
+    'M 18 -2 C 18 2.5 9 2.5 9 -2 C 9 2.5 0 2.5 0 -2 C 0 2.5 -9 2.5 -9 -2 C -9 2.5 -18 2.5 -18 -2 ' +
+    'M -4.5 1.38 L 5.95 23.44 M 4.5 1.38 L 10.45 13.94 M 4.5 1.38 L -5.95 23.44 M -4.5 1.38 L -10.45 13.94',
+  COOL_K,
+);
+
+// A tumbler with a bendy straw, and the level of the drink.
+const DRINK = scaled(
+  'M -18 -10 L 18 -10 L 14.5 30 C 14.3 32.5 12.5 34 10 34 L -10 34 C -12.5 34 -14.3 32.5 -14.5 30 Z ' +
+    'M 3 -10 L 3 -24.5 L 13 -34.5 L 16.5 -31 L 8 -22.5 L 8 -10 Z ' +
+    'M -17.13 0 L 17.13 0',
+  COOL_K,
+);
+
+export const COOLDOWN = [POPSICLE, CONE, DRINK];

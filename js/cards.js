@@ -1,5 +1,5 @@
 import { attributes } from './set.js';
-import { FRUITS, SHAPES } from './shapes.js';
+import { COOLDOWN, FRUITS, SHAPES } from './shapes.js';
 
 // Card geometry in SVG units, portrait. Landscape cards swap width and height
 // and lay the shapes out side by side.
@@ -28,6 +28,17 @@ export const CARD_DESIGNS = [
     name: 'Fruits',
     shapes: FRUITS,
     nouns: [['apple', 'apples'], ['banana', 'bananas'], ['bunch of grapes', 'bunches of grapes']],
+    spacing: 88,
+    upright: true,
+    strokeWidth: 3.5,
+    stripes: 'stripes-diagonal',
+    iconScale: 0.18,
+  },
+  {
+    id: 'cooldown',
+    name: 'Cooldown',
+    shapes: COOLDOWN,
+    nouns: [['popsicle', 'popsicles'], ['ice cream cone', 'ice cream cones'], ['drink', 'drinks']],
     spacing: 88,
     upright: true,
     strokeWidth: 3.5,

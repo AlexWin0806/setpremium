@@ -50,15 +50,10 @@ export function createSettingsPanel(host, trigger) {
                 preview: `<span class="choice-preview">${designIcon(design)}</span>`,
               })),
             )}
-          </ul>
-        </section>
-        <section class="group" style="--i:2">
-          <h3 class="group-title">Card texture</h3>
-          <ul class="group-list">
             ${picker(
               'cardTexture',
               'texture',
-              'Texture',
+              'Card texture',
               CARD_TEXTURES.map((texture) => ({
                 id: texture.id,
                 name: texture.name,
