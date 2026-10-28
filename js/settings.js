@@ -17,11 +17,12 @@ export const CARD_TEXTURES = [
   { id: 'translucent', name: 'Translucent' },
   { id: 'wood', name: 'Wood' },
   { id: 'marble', name: 'Marble' },
+  { id: 'metal', name: 'Metallic' },
 ];
 
 // Settings are saved in this browser (localStorage), so each device — desktop
 // browser, phone browser, home-screen app — remembers its own last choices.
-const DEFAULTS = { theme: 'classic-dark', cardDesign: 'classic', cardTexture: 'classic' };
+const DEFAULTS = { theme: 'classic-dark', cardDesign: 'classic', cardTexture: 'translucent' };
 
 let settings = { ...DEFAULTS, ...load('settings', {}) };
 if (!THEMES.some((t) => t.id === settings.theme)) settings.theme = DEFAULTS.theme;

@@ -71,8 +71,6 @@ function castle() {
     `<circle cx="${x}" cy="${y}" r="6.5" fill="none" stroke="#c79b52" stroke-width="2" stroke-dasharray="3 3"/>`;
   return `
     <svg class="deco deco-castle" viewBox="-62 -62 124 124">
-      <rect x="-54" y="-54" width="108" height="108" rx="22" fill="none" stroke="#6fcfe0" stroke-width="10"/>
-      <rect x="-54" y="-54" width="108" height="108" rx="22" fill="none" stroke="#a9e6ee" stroke-width="3"/>
       <rect x="-34" y="-34" width="68" height="68" rx="3" fill="rgb(110 76 30 / 0.15)" transform="translate(5 5)"/>
       <rect x="-34" y="-34" width="68" height="68" rx="3" fill="#e3bd78" stroke="#c79b52" stroke-width="2.5"/>
       <rect x="-27" y="-27" width="54" height="54" fill="none" stroke="#c79b52" stroke-width="3" stroke-dasharray="5 4"/>

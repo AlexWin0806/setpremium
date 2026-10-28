@@ -1,6 +1,6 @@
 // Network-first service worker: always serve the latest files when online and
 // fall back to the cache offline. Bump VERSION when the precache list changes.
-const VERSION = 'v7';
+const VERSION = 'v8';
 const CACHE = `set-${VERSION}`;
 
 const PRECACHE = [

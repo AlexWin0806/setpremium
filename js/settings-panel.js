@@ -106,7 +106,15 @@ export function createSettingsPanel(host, trigger) {
       const on = settings[choice.dataset.setting] === choice.dataset.value;
       choice.setAttribute('aria-checked', String(on));
       choice.tabIndex = on ? 0 : -1;
+      if (on) choice.closest('.picker').querySelector('.picker-current').textContent = choice.dataset.name;
     }
+  }
+
+  function togglePicker(picker) {
+    const open = !picker.classList.contains('open');
+    picker.classList.toggle('open', open);
+    picker.querySelector('.picker-toggle').setAttribute('aria-expanded', String(open));
+    picker.querySelector('.picker-panel').inert = !open;
   }
 
   function choose(choice) {
@@ -120,6 +128,8 @@ export function createSettingsPanel(host, trigger) {
   trigger.addEventListener('click', () => setOpen(!isOpen()));
   host.addEventListener('click', (event) => {
     if (event.target.closest('[data-action="close-settings"]')) setOpen(false);
+    const toggle = event.target.closest('.picker-toggle');
+    if (toggle) togglePicker(toggle.closest('.picker'));
     const choice = event.target.closest('.choice');
     if (choice) choose(choice);
   });
@@ -149,23 +159,33 @@ function row(icon, label, detail) {
     </li>`;
 }
 
-// A labelled row of visual options for one setting.
+// A dropdown row for one setting: shows the current choice, and opens to a
+// grid of visual options. Starts closed.
 function picker(setting, icon, label, options) {
   const labelId = `${setting}-label`;
   return `
     <li class="picker">
-      <span class="row-icon">${ICONS[icon]}</span>
-      <span class="row-label" id="${labelId}">${label}</span>
-      <div class="choices" role="radiogroup" aria-labelledby="${labelId}">
-        ${options
-          .map(
-            (option) => `
-          <button class="choice" type="button" role="radio" data-setting="${setting}" data-value="${option.id}">
-            ${option.preview}
-            <span class="choice-name">${option.name}</span>
-          </button>`,
-          )
-          .join('')}
+      <button class="picker-toggle" type="button" aria-expanded="false" aria-controls="${setting}-options">
+        <span class="row-icon">${ICONS[icon]}</span>
+        <span class="row-label" id="${labelId}">${label}</span>
+        <span class="row-detail picker-current"></span>
+        <span class="picker-chevron">${ICONS.chevron}</span>
+      </button>
+      <div class="picker-panel" id="${setting}-options" inert>
+        <div class="picker-panel-inner">
+          <div class="choices" role="radiogroup" aria-labelledby="${labelId}">
+            ${options
+              .map(
+                (option) => `
+              <button class="choice" type="button" role="radio" data-setting="${setting}"
+                data-value="${option.id}" data-name="${option.name}">
+                ${option.preview}
+                <span class="choice-name">${option.name}</span>
+              </button>`,
+              )
+              .join('')}
+          </div>
+        </div>
       </div>
     </li>`;
 }

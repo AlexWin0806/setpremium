@@ -80,6 +80,11 @@
   --marble-light: #34343a;
   --marble-dark: #26262b;
   --marble-edge: rgb(255 255 255 / 0.12);
+  --metal-light: #62666e;
+  --metal-dark: #3b3e44;
+  --metal-sheen: rgb(255 255 255 / 0.14);
+  --metal-edge: #747a83;
+  --metal-brush: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='b' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.002 0.9' numOctaves='2' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.9 0 0 0 -0.38'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23b)'/%3E%3C/svg%3E");
   --engrave-shadow: rgb(0 0 0 / 0.6);
   --engrave-highlight: rgb(255 255 255 / 0.25);
   --marble-veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='m' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.005 0.011' numOctaves='5' seed='8'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.6 0 0 0 0 0.66 -3.4 0 0 0 0.5'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23m)'/%3E%3C/svg%3E");
@@ -133,6 +138,11 @@
   --marble-light: #fbfaf8;
   --marble-dark: #ebe9e6;
   --marble-edge: rgb(0 0 0 / 0.12);
+  --metal-light: #eef0f2;
+  --metal-dark: #c4c9cf;
+  --metal-sheen: rgb(255 255 255 / 0.75);
+  --metal-edge: #a6acb4;
+  --metal-brush: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='b' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.002 0.9' numOctaves='2' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.35 0 0 0 0 0.35 0.9 0 0 0 -0.4'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23b)'/%3E%3C/svg%3E");
   --engrave-shadow: rgb(0 0 0 / 0.35);
   --engrave-highlight: rgb(255 255 255 / 0.85);
   --marble-veins: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='m' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.005 0.011' numOctaves='5' seed='8'/%3E%3CfeColorMatrix values='0 0 0 0 0.52 0 0 0 0 0.52 0 0 0 0 0.58 -3.4 0 0 0 0.5'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23m)'/%3E%3C/svg%3E");
@@ -187,7 +197,6 @@
    texture can be applied to one element, which is how the settings previews
    render. */
 
-:root,
 [data-card-texture='classic'] {
   --card-bg: transparent;
   --card-border: var(--card-outline);
@@ -204,6 +213,8 @@
     0 8px 22px rgb(0 0 0 / 0.22);
 }
 
+/* Translucent is the default. */
+:root,
 [data-card-texture='translucent'] {
   --card-bg: var(--translucent-fill);
   --card-border: transparent;
@@ -226,15 +237,37 @@
     0 4px 12px rgb(0 0 0 / 0.2);
 }
 
-/* On wood and marble the symbols look engraved into the card (filters are in
-   js/cards.js). */
+[data-card-texture='metal'] {
+  --card-bg:
+    var(--metal-brush),
+    linear-gradient(
+      120deg,
+      transparent 18%,
+      var(--metal-sheen) 36%,
+      transparent 52%,
+      transparent 70%,
+      var(--metal-sheen) 82%,
+      transparent 94%
+    ),
+    linear-gradient(180deg, var(--metal-light), var(--metal-dark));
+  --card-border: var(--metal-edge);
+  --card-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.3),
+    inset 0 -1px 0 rgb(0 0 0 / 0.15),
+    0 4px 12px rgb(0 0 0 / 0.25);
+}
+
+/* On wood, marble and metal the symbols look engraved into the card (filters
+   are in js/cards.js). */
 [data-card-texture='wood'] .card .symbols,
-[data-card-texture='marble'] .card .symbols {
+[data-card-texture='marble'] .card .symbols,
+[data-card-texture='metal'] .card .symbols {
   filter: url(#engrave);
 }
 
 .texture-swatch[data-card-texture='wood'] .design-icon > g,
-.texture-swatch[data-card-texture='marble'] .design-icon > g {
+.texture-swatch[data-card-texture='marble'] .design-icon > g,
+.texture-swatch[data-card-texture='metal'] .design-icon > g {
   filter: url(#engrave-icon);
 }
 
@@ -417,7 +450,7 @@ button {
   position: absolute;
   top: calc(var(--safe-top) + 12px);
   right: calc(var(--safe-right) + 12px);
-  z-index: 1;
+  z-index: 2; /* above .home-content, which spans the top of the page */
 }
 
 .settings-btn:hover svg,
@@ -872,11 +905,16 @@ button {
   }
 }
 
+/* Stays put while the drawer scrolls, so close is always in reach. */
 .drawer-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 12px 4px 20px;
+  background: var(--surface);
 }
 
 .drawer-header h2 {
@@ -952,19 +990,64 @@ button {
   font-size: 15px;
 }
 
-.picker {
-  display: grid;
-  grid-template-columns: auto 1fr;
+/* A dropdown: the row shows the current choice; opening it reveals the
+   options. Height animates via grid rows (0fr <-> 1fr). */
+.picker-toggle {
+  display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 0;
+  background: none;
+  font-size: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.picker-toggle:focus-visible {
+  outline-offset: -2px;
+}
+
+.picker-chevron svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.picker.open .picker-chevron svg {
+  transform: rotate(180deg);
+}
+
+.picker-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--ease-out);
+}
+
+.picker.open .picker-panel {
+  grid-template-rows: 1fr;
+}
+
+.picker-panel-inner {
+  min-height: 0;
+  overflow: hidden;
 }
 
 .choices {
-  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  padding: 4px 16px 16px;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.picker.open .choices {
+  opacity: 1;
 }
 
 .choice {
