@@ -87,8 +87,8 @@ const GRAPES = GRAPE_OUTLINE + scaled('M 0 -26 C 0 -30 2 -34 6 -37', GRAPE_K);
 
 export const FRUITS = [APPLE, BANANA, GRAPES];
 
-// Cooldown treats, upright like the fruit and scaled to match them. Lines
-// inside a shape are open paths with no area, so they only show as strokes.
+// Cooldown treats, upright like the fruit and scaled to match them. Each is a
+// single outline, blank inside.
 const COOL_K = 1.1;
 
 // A rounded ice pop with a bite out of its top right, on a stick.
@@ -101,21 +101,17 @@ const POPSICLE = scaled(
   COOL_K,
 );
 
-// A scoop on a waffle cone, then the scoop's dripping edge (drawn the same way
-// round as the outline, so the drips stay filled) and the cone's grid.
+// A scoop overhanging a cone.
 const CONE = scaled(
   'M -23 -8 C -23 -20.7 -12.7 -31 0 -31 C 12.7 -31 23 -20.7 23 -8 ' +
-    'C 23 -4.5 21 -2 18 -2 L 0 36 L -18 -2 C -21 -2 -23 -4.5 -23 -8 Z ' +
-    'M 18 -2 C 18 2.5 9 2.5 9 -2 C 9 2.5 0 2.5 0 -2 C 0 2.5 -9 2.5 -9 -2 C -9 2.5 -18 2.5 -18 -2 ' +
-    'M -4.5 1.38 L 5.95 23.44 M 4.5 1.38 L 10.45 13.94 M 4.5 1.38 L -5.95 23.44 M -4.5 1.38 L -10.45 13.94',
+    'C 23 -4.5 21 -2 18 -2 L 0 36 L -18 -2 C -21 -2 -23 -4.5 -23 -8 Z',
   COOL_K,
 );
 
-// A tumbler with a bendy straw, and the level of the drink.
+// A tumbler with a bendy straw coming out of the top.
 const DRINK = scaled(
-  'M -18 -10 L 18 -10 L 14.5 30 C 14.3 32.5 12.5 34 10 34 L -10 34 C -12.5 34 -14.3 32.5 -14.5 30 Z ' +
-    'M 3 -10 L 3 -24.5 L 13 -34.5 L 16.5 -31 L 8 -22.5 L 8 -10 Z ' +
-    'M -17.13 0 L 17.13 0',
+  'M -18 -10 L 3 -10 L 3 -24.5 L 13 -34.5 L 16.5 -31 L 8 -22.5 L 8 -10 L 18 -10 ' +
+    'L 14.5 30 C 14.3 32.5 12.5 34 10 34 L -10 34 C -12.5 34 -14.3 32.5 -14.5 30 Z',
   COOL_K,
 );
 

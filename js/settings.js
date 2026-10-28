@@ -12,9 +12,8 @@ export const THEMES = [
 // The background of each card. Styles live in css/styles.css under
 // [data-card-texture='<id>'], with colours from the active theme.
 export const CARD_TEXTURES = [
-  { id: 'classic', name: 'Classic' },
-  { id: 'glass', name: 'Glass' },
   { id: 'translucent', name: 'Translucent' },
+  { id: 'glass', name: 'Glass' },
   { id: 'wood', name: 'Wood' },
   { id: 'marble', name: 'Marble' },
   { id: 'metal', name: 'Metallic' },
